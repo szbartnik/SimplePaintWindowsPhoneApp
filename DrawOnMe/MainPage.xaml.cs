@@ -11,18 +11,26 @@ using DrawOnMe.Resources;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Coding4Fun.Toolkit.Controls;
+using System.Windows.Media.Imaging;
+using Microsoft.Phone.Tasks;
+using Microsoft.Xna.Framework.Media;
+using System.IO.IsolatedStorage;
+using System.IO;
 
 namespace DrawOnMe
 {
     public partial class MainPage : PhoneApplicationPage
     {
+        enum PickerColorMode { BgColor, LineColor };
+
         private MasterViewModel _viewModel;
         private Point _point;
         private Point _oldPoint;
         private bool _draw = false;
         private double _opacity;
         private List<int> _undoMemory = new List<int>();
+        private Color _pickerCurrentColor;
+        private PickerColorMode _pickerColorMode;
 
         // Constructor
         public MainPage()
@@ -47,14 +55,53 @@ namespace DrawOnMe
             DataContext = _viewModel;
         }
 
+        private void takeColor()
+        {
+            var picker = new Coding4Fun.Toolkit.Controls.ColorPicker()
+            {
+                Height = 350,
+                Width = 350,
+                Margin = new Thickness(0, 20, 0, 0),
+            };
+
+            picker.ColorChanged += picker_ColorChanged;
+
+            var messageBox = new CustomMessageBox()
+            {
+                Content = picker,
+                Caption = "Select color...",
+                LeftButtonContent = "OK",
+            };
+
+            messageBox.Dismissed += (s1, e1) =>
+            {
+                if (e1.Result == CustomMessageBoxResult.LeftButton)
+                {
+                    if (_pickerColorMode == PickerColorMode.BgColor)
+                        _viewModel.BgColor = new SolidColorBrush(_pickerCurrentColor);
+                    else
+                        _viewModel.LineColor = new SolidColorBrush(_pickerCurrentColor);
+                }
+            };
+               
+            messageBox.Show();
+        }
+
+        void picker_ColorChanged(object sender, Color color)
+        {
+            _pickerCurrentColor = color;
+        }
+
         void lineColorEllipse_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            throw new NotImplementedException();
+            _pickerColorMode = PickerColorMode.LineColor;
+            takeColor();
         }
 
         void bgColorEllipse_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            throw new NotImplementedException();
+            _pickerColorMode = PickerColorMode.BgColor;
+            takeColor();
         }
 
         private void FingerDown(object sender, MouseButtonEventArgs e)
@@ -115,7 +162,28 @@ namespace DrawOnMe
 
         void saveButton_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            String tempJPEG = "logo.jpg";
+
+            var bitmap = new WriteableBitmap((int)paint.ActualWidth, (int)paint.ActualHeight);
+            bitmap.Render(paint, null);
+            bitmap.Invalidate();
+
+            using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                IsolatedStorageFileStream fileStream = myIsolatedStorage.CreateFile(tempJPEG);
+                bitmap.SaveJpeg(fileStream, bitmap.PixelWidth, bitmap.PixelHeight, 0, 85);
+                fileStream.Close();
+
+                using (IsolatedStorageFileStream fileStr = myIsolatedStorage.OpenFile(tempJPEG, FileMode.Open, FileAccess.Read))
+                {
+                    MediaLibrary mediaLibrary = new MediaLibrary();
+                    Picture pic = mediaLibrary.SavePicture(String.Format("DrawOnMeDrawing-{0}.jpg", DateTime.Now.ToLongTimeString()), fileStr);
+                    fileStr.Close();
+                }
+            }
+
+            PhotoChooserTask photoChooserTask = new PhotoChooserTask();
+            photoChooserTask.Show();
         }
 
         void clearContentButton_Click(object sender, EventArgs e)
@@ -140,12 +208,12 @@ namespace DrawOnMe
             _undoMemory.Remove(_undoMemory.Last());
         }
 
-        private void thicknessPlus_Tap(object sender, GestureEventArgs e)
+        private void thicknessPlus_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             _viewModel.Thickness++;
         }
 
-        private void thicknessMinus_Tap(object sender, GestureEventArgs e)
+        private void thicknessMinus_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             _viewModel.Thickness--;
         }
