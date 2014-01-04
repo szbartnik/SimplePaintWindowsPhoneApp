@@ -7,12 +7,12 @@ using System.Resources;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DrawOnMe")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("App to draw")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Szymon Bartnik")]
 [assembly: AssemblyProduct("DrawOnMe")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCopyright("Copyright DrawOnMe © 2014")]
+[assembly: AssemblyTrademark("DrawOnMe")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

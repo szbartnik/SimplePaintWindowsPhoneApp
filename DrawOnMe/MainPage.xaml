@@ -31,28 +31,28 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="DRAW ON ME" Margin="0 0 30 0" Style="{StaticResource PhoneTextNormalStyle}"/>
-                <Image Source="/Assets/bar.png" Width="150" Margin="2 0 0 0" HorizontalAlignment="Left" />
+                <TextBlock Text="DRAW ON ME" FontSize="21" Style="{StaticResource PhoneTextNormalStyle}"/>
+                <Image Source="/Assets/bar.png" Width="130" HorizontalAlignment="Center" Margin="1 0 0 0"/>
             </StackPanel>
-           
+
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="45" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="3*" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" FontSize="15" Text="Bg color" TextAlignment="Center" Margin="0 0 7 0" />
-                <Ellipse StrokeThickness="2" Stroke="{Binding BgColor, Converter={StaticResource ContrastColorConverter}}" x:Name="bgColorEllipse" Grid.Column="0" Grid.Row="1" Margin="28 2" Fill="{Binding BgColor}" />
+                <TextBlock Grid.Column="0" Grid.Row="0" FontSize="15" Text="{Binding LocalizedResources.BgColorTextBlock, Source={StaticResource LocalizedStrings}}" TextAlignment="Center" />
+                <Ellipse StrokeThickness="2" Stroke="{Binding BgColor, Converter={StaticResource ContrastColorConverter}}" x:Name="bgColorEllipse" Grid.Column="0" Grid.Row="1" Margin="22 2" Fill="{Binding BgColor}" />
 
-                <TextBlock Grid.Column="1" Grid.Row="0" FontSize="15" Text="Line color" TextAlignment="Center" Margin="0 0 7 0" />
-                <Ellipse StrokeThickness="2" Stroke="{Binding LineColor, Converter={StaticResource ContrastColorConverter}}" x:Name="lineColorEllipse" Grid.Column="1" Grid.Row="1" Margin="28 2" Fill="{Binding LineColor}" />
+                <TextBlock Grid.Column="1" Grid.Row="0" FontSize="15" Text="{Binding LocalizedResources.LineColorTextBlock, Source={StaticResource LocalizedStrings}}" TextAlignment="Center" />
+                <Ellipse StrokeThickness="2" Stroke="{Binding LineColor, Converter={StaticResource ContrastColorConverter}}" x:Name="lineColorEllipse" Grid.Column="1" Grid.Row="1" Margin="22 2" Fill="{Binding LineColor}" />
 
-                <TextBlock Grid.Column="2" Grid.Row="0" FontSize="15" Text="Line thickness" TextAlignment="Center" />
+                <TextBlock Grid.Column="2" Grid.Row="0" FontSize="15" Text="{Binding LocalizedResources.LineThicknessTextBlock, Source={StaticResource LocalizedStrings}}" TextAlignment="Center" />
                 <Grid Grid.Column="2" Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*" />
@@ -68,11 +68,11 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Rectangle Margin="0 3" Grid.Column="0" Grid.Row="0" Stroke="{StaticResource PhoneForegroundBrush}" />
-                        <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" TextAlignment="Center" Text="-" />
+                        <TextBlock Grid.Column="0" Grid.Row="0" Margin="0 0 0 3" VerticalAlignment="Center" TextAlignment="Center" Text="-" />
                     </Grid>
-                    
+
                     <TextBlock x:Name="thicknessValueTextBox" Grid.Column="1" Text="{Binding Thickness}" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    
+
                     <Grid Grid.Column="3" x:Name="thicknessPlus" Tap="thicknessPlus_Tap">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -81,7 +81,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Rectangle Margin="0 3" Grid.Column="0" Grid.Row="0" Stroke="{StaticResource PhoneForegroundBrush}" />
-                        <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" TextAlignment="Center" Text="+" />
+                        <TextBlock Grid.Column="0" Grid.Row="0" Margin="0 0 0 3" VerticalAlignment="Center" TextAlignment="Center" Text="+" />
                     </Grid>
                 </Grid>
             </Grid>

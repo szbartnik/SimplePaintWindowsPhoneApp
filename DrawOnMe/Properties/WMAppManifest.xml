@@ -1,7 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US" />
-  <App xmlns="" ProductID="{a30c1491-2774-4261-a0cd-34a54391adc8}" Title="DrawOnMe" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="DrawOnMe author" Description="Sample description" Publisher="DrawOnMe" PublisherID="{7fef920f-ba1d-4edf-bbc2-00df462ccee7}">
+  <Languages xmlns="">
+    <Language code="pl" />
+  </Languages>
+  <App xmlns="" ProductID="{a30c1491-2774-4261-a0cd-34a54391adc8}" Title="Draw On Me" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="Szymon Bartnik" Description="Application made to draw simple images on your phone and save them." Publisher="Szymon Bartnik" PublisherID="{7fef920f-ba1d-4edf-bbc2-00df462ccee7}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
@@ -17,10 +20,11 @@
     <Tokens>
       <PrimaryToken TokenID="DrawOnMeToken" TaskName="_default">
         <TemplateFlip>
-          <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileSmall.png</SmallImageURI>
+          <SmallImageURI IsRelative="true" IsResource="false">Assets\IconicTileSmall.png</SmallImageURI>
           <Count>0</Count>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileMedium.png</BackgroundImageURI>
-          <Title>DrawOnMe</Title>
+          <BackgroundImageURI IsRelative="true" IsResource="false">Assets\IconicTileMedium.png</BackgroundImageURI>
+          <Title>
+          </Title>
           <BackContent>
           </BackContent>
           <BackBackgroundImageURI>

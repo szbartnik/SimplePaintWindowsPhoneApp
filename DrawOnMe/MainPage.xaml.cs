@@ -16,11 +16,15 @@ using Microsoft.Phone.Tasks;
 using Microsoft.Xna.Framework.Media;
 using System.IO.IsolatedStorage;
 using System.IO;
+using Microsoft.Phone;
+using System.Globalization;
+using System.Threading;
 
 namespace DrawOnMe
 {
     public partial class MainPage : PhoneApplicationPage
     {
+        private const String TEMP_JPEG_NAME = "temp.jpg";
         enum PickerColorMode { BgColor, LineColor };
 
         private MasterViewModel _viewModel;
@@ -31,6 +35,7 @@ namespace DrawOnMe
         private List<int> _undoMemory = new List<int>();
         private Color _pickerCurrentColor;
         private PickerColorMode _pickerColorMode;
+        private ProgressIndicator _progressIndicator;
 
         // Constructor
         public MainPage()
@@ -147,22 +152,86 @@ namespace DrawOnMe
         {
             ApplicationBar = new ApplicationBar();
 
-            ApplicationBarIconButton undoButton = new ApplicationBarIconButton(new Uri("/Assets/back.png", UriKind.Relative)) { Text = "Undo" };
+            ApplicationBarIconButton undoButton = new ApplicationBarIconButton(new Uri("/Assets/back.png", UriKind.Relative)) { Text = AppResources.UndoAppBar };
             undoButton.Click += undoButton_Click;
             ApplicationBar.Buttons.Add(undoButton);
 
-            ApplicationBarIconButton clearContentButton = new ApplicationBarIconButton(new Uri("/Assets/close.png", UriKind.Relative)) { Text = "Clear" };
+            ApplicationBarIconButton clearContentButton = new ApplicationBarIconButton(new Uri("/Assets/close.png", UriKind.Relative)) { Text = AppResources.ClearAppBar };
             clearContentButton.Click += clearContentButton_Click;
             ApplicationBar.Buttons.Add(clearContentButton);
 
-            ApplicationBarIconButton saveButton = new ApplicationBarIconButton(new Uri("/Assets/save.png", UriKind.Relative)) { Text = "Save" };
+            ApplicationBarIconButton openButton = new ApplicationBarIconButton(new Uri("/Assets/folder.png", UriKind.Relative)) { Text = AppResources.OpenAppBar };
+            openButton.Click += openButton_Click;
+            ApplicationBar.Buttons.Add(openButton);
+
+            ApplicationBarIconButton saveButton = new ApplicationBarIconButton(new Uri("/Assets/save.png", UriKind.Relative)) { Text = AppResources.SaveAppBar };
             saveButton.Click += saveButton_Click;
             ApplicationBar.Buttons.Add(saveButton);
+
+            ApplicationBarMenuItem rateMenuItem = new ApplicationBarMenuItem(AppResources.RateAppBar);
+            rateMenuItem.Click += rateButton_Click;
+            ApplicationBar.MenuItems.Add(rateMenuItem);
+
+            ApplicationBarMenuItem infoMenuItem = new ApplicationBarMenuItem(AppResources.InfoAppBar);
+            infoMenuItem.Click += infoMenuItem_Click;
+            ApplicationBar.MenuItems.Add(infoMenuItem);
+        }
+
+        void rateButton_Click(object sender, EventArgs e)
+        {
+            MarketplaceReviewTask marketplaceReviewTask = new MarketplaceReviewTask();
+            marketplaceReviewTask.Show();
+        }
+
+        void infoMenuItem_Click(object sender, EventArgs e)
+        {
+            string createdByLine = String.Format("\n{0}\n{1}",
+                AppResources.DesignedAndCreatedBySentence,
+                AppResources.CreatorNameAndSurname);
+
+            AboutMessageBox.ShowAboutAppMessageBox(createdByLine, AppResources.AdditionalContentOfAboutBox);
+        }
+
+        void openButton_Click(object sender, EventArgs e)
+        {
+            var selectphoto = new PhotoChooserTask();
+            selectphoto.Completed += (s1, e1) =>
+            {
+                if (e1.TaskResult == TaskResult.OK)
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.SetSource(e1.ChosenPhoto);
+
+                    var writeableBitmap = new WriteableBitmap(bitmap);
+
+                    var image = new Image()
+                    { 
+                        Source = writeableBitmap,
+                        Width = (int)paint.ActualWidth,
+                        Height = (int)paint.ActualHeight,
+                    };
+
+                    Canvas.SetLeft(image, 0);
+                    Canvas.SetTop(image, 0);
+
+                    _undoMemory.Add(paint.Children.Count);
+                    paint.Children.Add(image);
+                }
+            };
+            selectphoto.Show();
+
         }
 
         void saveButton_Click(object sender, EventArgs e)
         {
-            String tempJPEG = "logo.jpg";
+            _progressIndicator = new ProgressIndicator
+            {
+                IsIndeterminate = true,
+                Text = "Saving...",
+                IsVisible = true,
+            };
+
+            SystemTray.SetProgressIndicator(this, _progressIndicator);
 
             var bitmap = new WriteableBitmap((int)paint.ActualWidth, (int)paint.ActualHeight);
             bitmap.Render(paint, null);
@@ -170,20 +239,27 @@ namespace DrawOnMe
 
             using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                IsolatedStorageFileStream fileStream = myIsolatedStorage.CreateFile(tempJPEG);
+                IsolatedStorageFileStream fileStream = myIsolatedStorage.CreateFile(TEMP_JPEG_NAME);
                 bitmap.SaveJpeg(fileStream, bitmap.PixelWidth, bitmap.PixelHeight, 0, 85);
                 fileStream.Close();
 
-                using (IsolatedStorageFileStream fileStr = myIsolatedStorage.OpenFile(tempJPEG, FileMode.Open, FileAccess.Read))
+                using (IsolatedStorageFileStream fileStr = myIsolatedStorage.OpenFile(TEMP_JPEG_NAME, FileMode.Open, FileAccess.Read))
                 {
                     MediaLibrary mediaLibrary = new MediaLibrary();
-                    Picture pic = mediaLibrary.SavePicture(String.Format("DrawOnMeDrawing-{0}.jpg", DateTime.Now.ToLongTimeString()), fileStr);
+                    Picture pic = mediaLibrary.SavePicture(
+                        String.Format(
+                            "DrawOnMeDrawing-{0}-{1}.jpg",
+                            DateTime.Now.ToLongTimeString(),
+                            DateTime.Now.ToLongDateString()),
+                        fileStr);
                     fileStr.Close();
                 }
             }
 
             PhotoChooserTask photoChooserTask = new PhotoChooserTask();
             photoChooserTask.Show();
+
+            _progressIndicator.IsVisible = false;
         }
 
         void clearContentButton_Click(object sender, EventArgs e)
@@ -198,11 +274,11 @@ namespace DrawOnMe
 
             int i = 0;
 
-            foreach (var line in paint.Children.OfType<Line>().ToList())
+            foreach (var item in paint.Children.ToList())
             {
                 if (i++ >= _undoMemory.Last())
                 {
-                    paint.Children.Remove(line);
+                    paint.Children.Remove(item);
                 }
             }
             _undoMemory.Remove(_undoMemory.Last());
